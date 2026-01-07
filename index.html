@@ -1,709 +1,426 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>No-Guess Minesweeper</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>No-Guess Minesweeper</title>
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #2c3e50;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .container {
-            background: white;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
+body {
+    font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
+    background: #808080;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
-        h1 {
-            text-align: center;
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 2em;
-        }
+/* ---------- WINDOW ---------- */
 
-        .info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            gap: 20px;
-        }
+.container {
+    background: #c0c0c0;
+    padding: 12px;
+    border: 2px solid #fff;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+}
 
-        .stat {
-            background: #f0f0f0;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
+/* ---------- TITLE ---------- */
 
-        .mines { color: #e74c3c; }
-        .timer { color: #3498db; }
-        .flags { color: #f39c12; }
+h1 {
+    font-size: 16px;
+    background: #000080;
+    color: white;
+    padding: 6px;
+    margin-bottom: 8px;
+    border: 1px solid black;
+    text-align: center;
+}
 
-        button {
-            background: #667eea;
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
+/* ---------- DIFFICULTY ---------- */
 
-        button:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-        }
+.difficulty {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 6px;
+}
 
-        #board {
-            display: grid;
-            gap: 2px;
-            background: #bdc3c7;
-            padding: 2px;
-            border-radius: 8px;
-            margin: 20px auto 0;
-            width: fit-content;
-        }
+.difficulty button.active {
+    border: 2px inset #808080;
+    font-weight: bold;
+}
 
-        .cell {
-            width: 35px;
-            height: 35px;
-            background: #95a5a6;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            transition: all 0.1s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+/* ---------- INFO BAR ---------- */
 
-        .cell:hover:not(.revealed):not(.flagged) {
-            background: #7f8c8d;
-        }
+.info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
 
-        .cell.revealed {
-            background: #ecf0f1;
-            cursor: default;
-        }
+.stat {
+    background: black;
+    color: red;
+    font-family: "Courier New", monospace;
+    padding: 4px 6px;
+    border: 2px inset #808080;
+    min-width: 80px;
+    text-align: center;
+}
 
-        .cell.flagged {
-            background: #e74c3c;
-            color: white;
-        }
+/* ---------- BUTTONS ---------- */
 
-        .cell.mine {
-            background: #c0392b;
-            color: white;
-        }
+button {
+    background: #c0c0c0;
+    border: 2px solid #fff;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
 
-        .cell.num-1 { color: #3498db; }
-        .cell.num-2 { color: #27ae60; }
-        .cell.num-3 { color: #e74c3c; }
-        .cell.num-4 { color: #8e44ad; }
-        .cell.num-5 { color: #d35400; }
-        .cell.num-6 { color: #16a085; }
-        .cell.num-7 { color: #2c3e50; }
-        .cell.num-8 { color: #95a5a6; }
+button:active {
+    border: 2px solid #404040;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+}
 
-        .message {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 1.3em;
-            font-weight: bold;
-            min-height: 30px;
-        }
+/* ---------- BOARD ---------- */
 
-        .win { color: #27ae60; }
-        .lose { color: #e74c3c; }
+#board {
+    display: grid;
+    background: #808080;
+    padding: 4px;
+    border: 2px inset #808080;
+}
 
-        .difficulty {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
+/* ---------- CELLS ---------- */
 
-        .difficulty button {
-            padding: 8px 20px;
-            font-size: 0.9em;
-        }
+.cell {
+    width: 24px;
+    height: 24px;
+    background: #c0c0c0;
+    border: 2px solid #fff;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+    font-size: 13px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    user-select: none;
+}
 
-        .difficulty button.active {
-            background: #764ba2;
-        }
+.cell:active:not(.revealed) {
+    border: 2px solid #404040;
+    border-right-color: #fff;
+    border-bottom-color: #fff;
+}
 
-        .highscores {
-            margin-top: 30px;
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-        }
+.cell.revealed {
+    border: 1px solid #808080;
+    cursor: default;
+}
 
-        .highscores h2 {
-            color: #667eea;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+.cell.flagged {
+    background: #c0c0c0;
+}
 
-        .highscores table {
-            width: 100%;
-            border-collapse: collapse;
-        }
+/* ---------- NUMBERS ---------- */
 
-        .highscores th {
-            background: #667eea;
-            color: white;
-            padding: 10px;
-            text-align: left;
-        }
+.cell.num-1 { color: blue; }
+.cell.num-2 { color: green; }
+.cell.num-3 { color: red; }
+.cell.num-4 { color: navy; }
+.cell.num-5 { color: maroon; }
+.cell.num-6 { color: teal; }
+.cell.num-7 { color: black; }
+.cell.num-8 { color: gray; }
 
-        .highscores td {
-            padding: 8px 10px;
-            border-bottom: 1px solid #ddd;
-        }
+/* ---------- MINE ---------- */
 
-        .highscores tr:hover {
-            background: #e8eaf6;
-        }
+.cell.mine {
+    background: red;
+    color: black;
+}
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
+/* ---------- MESSAGE ---------- */
 
-        .modal.show {
-            display: flex;
-        }
+.message {
+    text-align: center;
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 6px;
+}
 
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 400px;
-        }
+/* ---------- HIGHSCORES ---------- */
 
-        .modal-content h2 {
-            color: #27ae60;
-            margin-bottom: 20px;
-        }
+.highscores {
+    margin-top: 10px;
+    background: #c0c0c0;
+    padding: 8px;
+    border: 2px inset #808080;
+}
 
-        .modal-content p {
-            margin-bottom: 20px;
-            font-size: 1.1em;
-        }
+.highscores h2 {
+    font-size: 13px;
+    margin-bottom: 6px;
+}
 
-        .modal-content input {
-            width: 100%;
-            padding: 10px;
-            font-size: 1em;
-            border: 2px solid #667eea;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
+.highscores table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
 
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
+.highscores th,
+.highscores td {
+    border: 1px solid #808080;
+    padding: 4px;
+}
 
-        .modal-buttons button {
-            padding: 10px 25px;
-        }
-    </style>
+/* ---------- MODAL ---------- */
+
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: #c0c0c0;
+    padding: 12px;
+    border: 2px solid #fff;
+    border-right-color: #404040;
+    border-bottom-color: #404040;
+    width: 300px;
+}
+
+.modal-content h2 {
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 4px;
+    border: 2px inset #808080;
+    font-family: "Courier New", monospace;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>🎮 No-Guess Minesweeper</h1>
-        
-        <div class="difficulty">
-            <button onclick="setDifficulty('easy')" class="active" id="btn-easy">Easy</button>
-            <button onclick="setDifficulty('medium')" id="btn-medium">Medium</button>
-            <button onclick="setDifficulty('hard')" id="btn-hard">Hard</button>
-        </div>
+<div class="container">
+    <h1>No-Guess Minesweeper</h1>
 
-        <div class="info">
-            <div class="stat mines">💣 Mines: <span id="mineCount">10</span></div>
-            <button onclick="newGame()">New Game</button>
-            <div class="stat timer">⏱️ Time: <span id="timer">0</span>s</div>
-            <div class="stat flags">🚩 Flags: <span id="flagCount">0</span></div>
-        </div>
-
-        <div id="board"></div>
-        <div class="message" id="message"></div>
-
-        <div class="highscores">
-            <h2>🏆 High Scores</h2>
-            <table id="highscoreTable">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Name</th>
-                        <th>Difficulty</th>
-                        <th>Time</th>
-                    </tr>
-                </thead>
-                <tbody id="highscoreBody">
-                    <tr><td colspan="4" style="text-align: center; color: #999;">No scores yet</td></tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="difficulty">
+        <button id="btn-easy" class="active" onclick="setDifficulty('easy')">Easy</button>
+        <button id="btn-medium" onclick="setDifficulty('medium')">Medium</button>
+        <button id="btn-hard" onclick="setDifficulty('hard')">Hard</button>
     </div>
 
-    <div class="modal" id="winModal">
-        <div class="modal-content">
-            <h2>🎉 Congratulations!</h2>
-            <p>You won in <span id="winTime">0</span> seconds!</p>
-            <p>Would you like to save your score?</p>
-            <div id="nameInput" style="display: none;">
-                <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
-            </div>
-            <div class="modal-buttons">
-                <button onclick="saveScore()" id="yesBtn">Yes</button>
-                <button onclick="closeModal()">No</button>
-            </div>
-        </div>
+    <div class="info">
+        <div class="stat">Mines: <span id="mineCount">10</span></div>
+        <button onclick="newGame()">New</button>
+        <div class="stat">Time: <span id="timer">0</span></div>
+        <div class="stat">Flags: <span id="flagCount">0</span></div>
     </div>
 
-    <script>
-        let rows = 9, cols = 9, mines = 10;
-        let board = [], revealed = [], flagged = [];
-        let gameOver = false, gameStarted = false;
-        let timerInterval, seconds = 0;
-        let firstClick = true;
-        let difficulty = 'easy';
-        let highscores = JSON.parse(localStorage.getItem('minesweeperHighscores')) || [];
-        let askingForName = false;
+    <div id="board"></div>
+    <div class="message" id="message"></div>
 
-        const difficulties = {
-            easy: { rows: 9, cols: 9, mines: 10 },
-            medium: { rows: 16, cols: 16, mines: 40 },
-            hard: { rows: 16, cols: 30, mines: 99 }
-        };
+    <div class="highscores">
+        <h2>High Scores</h2>
+        <table>
+            <thead>
+                <tr><th>Rank</th><th>Name</th><th>Diff</th><th>Time</th></tr>
+            </thead>
+            <tbody id="highscoreBody">
+                <tr><td colspan="4" style="text-align:center;">No scores yet</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        function setDifficulty(level) {
-            difficulty = level;
-            const config = difficulties[level];
-            rows = config.rows;
-            cols = config.cols;
-            mines = config.mines;
-            
-            document.querySelectorAll('.difficulty button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(`btn-${level}`).classList.add('active');
-            
-            newGame();
+<div class="modal" id="winModal">
+    <div class="modal-content">
+        <h2>You Win</h2>
+        <p>Time: <span id="winTime">0</span> seconds</p>
+        <div id="nameInput" style="display:none;">
+            <input id="playerName" maxlength="20" placeholder="Your name">
+        </div>
+        <div class="modal-buttons">
+            <button onclick="saveScore()" id="yesBtn">Yes</button>
+            <button onclick="closeModal()">No</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let rows=9,cols=9,mines=10;
+let board=[],revealed=[],flagged=[];
+let gameOver=false,firstClick=true,seconds=0,timerInterval;
+let difficulty="easy";
+let highscores=JSON.parse(localStorage.getItem("minesweeperHighscores"))||[];
+let askingForName=false;
+
+const difficulties={
+    easy:{rows:9,cols:9,mines:10},
+    medium:{rows:16,cols:16,mines:40},
+    hard:{rows:16,cols:30,mines:99}
+};
+
+function setDifficulty(l){
+    difficulty=l;
+    Object.assign({rows,cols,mines},difficulties[l]);
+    document.querySelectorAll(".difficulty button").forEach(b=>b.classList.remove("active"));
+    document.getElementById("btn-"+l).classList.add("active");
+    newGame();
+}
+
+function newGame(){
+    gameOver=false;firstClick=true;seconds=0;
+    clearInterval(timerInterval);
+    document.getElementById("timer").textContent="0";
+    document.getElementById("flagCount").textContent="0";
+    document.getElementById("mineCount").textContent=mines;
+    document.getElementById("message").textContent="";
+    board=Array(rows).fill().map(()=>Array(cols).fill(0));
+    revealed=Array(rows).fill().map(()=>Array(cols).fill(false));
+    flagged=Array(rows).fill().map(()=>Array(cols).fill(false));
+    renderBoard();
+}
+
+function startTimer(){
+    timerInterval=setInterval(()=>{
+        seconds++;
+        document.getElementById("timer").textContent=seconds;
+    },1000);
+}
+
+function generateBoard(sr,sc){
+    while(true){
+        board=Array(rows).fill().map(()=>Array(cols).fill(0));
+        let placed=0;
+        while(placed<mines){
+            let r=Math.random()*rows|0,c=Math.random()*cols|0;
+            if(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1)continue;
+            if(board[r][c]!==-1){board[r][c]=-1;placed++;}
         }
-
-        function loadHighscores() {
-            const tbody = document.getElementById('highscoreBody');
-            tbody.innerHTML = '';
-            
-            if (highscores.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No scores yet</td></tr>';
-                return;
+        for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+            if(board[r][c]===-1)continue;
+            let n=0;
+            for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+                let nr=r+dr,nc=c+dc;
+                if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&board[nr][nc]===-1)n++;
             }
-            
-            // Sort by time (ascending)
-            highscores.sort((a, b) => a.time - b.time);
-            
-            // Group by difficulty
-            const byDifficulty = { easy: [], medium: [], hard: [] };
-            highscores.forEach(score => {
-                if (byDifficulty[score.difficulty]) {
-                    byDifficulty[score.difficulty].push(score);
-                }
-            });
-            
-            // Show top 5 for each difficulty
-            let rank = 1;
-            ['easy', 'medium', 'hard'].forEach(diff => {
-                byDifficulty[diff].slice(0, 5).forEach(score => {
-                    const row = tbody.insertRow();
-                    row.innerHTML = `
-                        <td>${rank++}</td>
-                        <td>${score.name}</td>
-                        <td>${score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1)}</td>
-                        <td>${score.time}s</td>
-                    `;
-                });
-            });
+            board[r][c]=n;
         }
+        break;
+    }
+}
 
-        function showWinModal() {
-            document.getElementById('winTime').textContent = seconds;
-            document.getElementById('winModal').classList.add('show');
-            document.getElementById('nameInput').style.display = 'none';
-            document.getElementById('yesBtn').textContent = 'Yes';
-            askingForName = false;
-        }
+function renderBoard(){
+    const b=document.getElementById("board");
+    b.innerHTML="";
+    b.style.gridTemplateColumns=`repeat(${cols},24px)`;
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+        let d=document.createElement("div");
+        d.className="cell";
+        d.onclick=()=>click(r,c);
+        d.oncontextmenu=e=>{e.preventDefault();right(r,c);};
+        d.dataset.row=r;d.dataset.col=c;
+        b.appendChild(d);
+    }
+}
 
-        function closeModal() {
-            document.getElementById('winModal').classList.remove('show');
-            document.getElementById('playerName').value = '';
-        }
+function click(r,c){
+    if(gameOver||revealed[r][c]||flagged[r][c])return;
+    if(firstClick){generateBoard(r,c);firstClick=false;startTimer();}
+    if(board[r][c]===-1){gameOver=true;revealAll();document.getElementById("message").textContent="Game Over";clearInterval(timerInterval);return;}
+    reveal(r,c);checkWin();
+}
 
-        function saveScore() {
-            if (!askingForName) {
-                // First click - show name input
-                askingForName = true;
-                document.getElementById('nameInput').style.display = 'block';
-                document.getElementById('yesBtn').textContent = 'Save';
-                document.getElementById('playerName').focus();
-            } else {
-                // Second click - save the score
-                const name = document.getElementById('playerName').value.trim();
-                if (name === '') {
-                    alert('Please enter a name!');
-                    return;
-                }
-                
-                highscores.push({
-                    name: name,
-                    difficulty: difficulty,
-                    time: seconds
-                });
-                
-                localStorage.setItem('minesweeperHighscores', JSON.stringify(highscores));
-                loadHighscores();
-                closeModal();
-            }
-        }
+function right(r,c){
+    if(gameOver||revealed[r][c])return;
+    flagged[r][c]=!flagged[r][c];
+    document.getElementById("flagCount").textContent=flagged.flat().filter(Boolean).length;
+    update(r,c);
+}
 
-        // Allow Enter key to submit name
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('playerName').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && askingForName) {
-                    saveScore();
-                }
-            });
-        });
+function reveal(r,c){
+    if(r<0||c<0||r>=rows||c>=cols||revealed[r][c]||flagged[r][c])return;
+    revealed[r][c]=true;update(r,c);
+    if(board[r][c]===0)for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr||dc)reveal(r+dr,c+dc);
+}
 
-        function newGame() {
-            gameOver = false;
-            gameStarted = false;
-            firstClick = true;
-            seconds = 0;
-            clearInterval(timerInterval);
-            document.getElementById('timer').textContent = '0';
-            document.getElementById('message').textContent = '';
-            document.getElementById('flagCount').textContent = '0';
-            document.getElementById('mineCount').textContent = mines;
-            
-            board = Array(rows).fill(null).map(() => Array(cols).fill(0));
-            revealed = Array(rows).fill(null).map(() => Array(cols).fill(false));
-            flagged = Array(rows).fill(null).map(() => Array(cols).fill(false));
-            
-            renderBoard();
-        }
+function update(r,c){
+    const d=document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+    d.className="cell";
+    if(flagged[r][c]){d.textContent="F";return;}
+    if(!revealed[r][c]){d.textContent="";return;}
+    d.classList.add("revealed");
+    if(board[r][c]===-1){d.classList.add("mine");d.textContent="*";}
+    else if(board[r][c]>0){d.textContent=board[r][c];d.classList.add("num-"+board[r][c]);}
+}
 
-        function startTimer() {
-            if (!gameStarted) {
-                gameStarted = true;
-                timerInterval = setInterval(() => {
-                    seconds++;
-                    document.getElementById('timer').textContent = seconds;
-                }, 1000);
-            }
-        }
+function revealAll(){for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){revealed[r][c]=true;update(r,c);}}
 
-        function generateBoard(clickRow, clickCol) {
-            // Generate a solvable board without guessing
-            let attempts = 0;
-            const maxAttempts = 100;
-            
-            while (attempts < maxAttempts) {
-                board = Array(rows).fill(null).map(() => Array(cols).fill(0));
-                
-                // Place mines randomly, avoiding first click and adjacent cells
-                let minesPlaced = 0;
-                while (minesPlaced < mines) {
-                    const r = Math.floor(Math.random() * rows);
-                    const c = Math.floor(Math.random() * cols);
-                    
-                    // Avoid first click and adjacent cells
-                    if (Math.abs(r - clickRow) <= 1 && Math.abs(c - clickCol) <= 1) continue;
-                    
-                    if (board[r][c] !== -1) {
-                        board[r][c] = -1;
-                        minesPlaced++;
-                    }
-                }
-                
-                // Calculate numbers
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        if (board[r][c] === -1) continue;
-                        
-                        let count = 0;
-                        for (let dr = -1; dr <= 1; dr++) {
-                            for (let dc = -1; dc <= 1; dc++) {
-                                if (dr === 0 && dc === 0) continue;
-                                const nr = r + dr, nc = c + dc;
-                                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc] === -1) {
-                                    count++;
-                                }
-                            }
-                        }
-                        board[r][c] = count;
-                    }
-                }
-                
-                // Check if board is solvable without guessing
-                if (isSolvable(clickRow, clickCol)) {
-                    return;
-                }
-                
-                attempts++;
-            }
-            
-            // If we couldn't generate a perfect board, use the last one
-            console.log('Using best available board after', attempts, 'attempts');
-        }
+function checkWin(){
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(board[r][c]!==-1&&!revealed[r][c])return;
+    gameOver=true;clearInterval(timerInterval);
+    document.getElementById("message").textContent="You Win";
+    showWinModal();
+}
 
-        function isSolvable(startRow, startCol) {
-            // Simplified solvability check - ensures first click opens a safe area
-            const testRevealed = Array(rows).fill(null).map(() => Array(cols).fill(false));
-            
-            // Simulate revealing from first click
-            revealFrom(startRow, startCol, testRevealed);
-            
-            // Check if we revealed at least some cells
-            let revealedCount = 0;
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    if (testRevealed[r][c]) revealedCount++;
-                }
-            }
-            
-            // A good starting position should reveal multiple cells
-            return revealedCount >= 9;
-        }
+function showWinModal(){
+    document.getElementById("winTime").textContent=seconds;
+    document.getElementById("winModal").classList.add("show");
+}
 
-        function revealFrom(r, c, testBoard) {
-            if (r < 0 || r >= rows || c < 0 || c >= cols || testBoard[r][c]) return;
-            testBoard[r][c] = true;
-            
-            if (board[r][c] === 0) {
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
-                        if (dr === 0 && dc === 0) continue;
-                        revealFrom(r + dr, c + dc, testBoard);
-                    }
-                }
-            }
-        }
+function closeModal(){document.getElementById("winModal").classList.remove("show");}
 
-        function renderBoard() {
-            const boardEl = document.getElementById('board');
-            boardEl.innerHTML = '';
-            boardEl.style.gridTemplateColumns = `repeat(${cols}, 35px)`;
-            
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'cell';
-                    cell.dataset.row = r;
-                    cell.dataset.col = c;
-                    
-                    cell.addEventListener('click', () => handleClick(r, c));
-                    cell.addEventListener('contextmenu', (e) => {
-                        e.preventDefault();
-                        handleRightClick(r, c);
-                    });
-                    cell.addEventListener('mousedown', (e) => {
-                        if (e.button === 0 && e.buttons === 3) { // Left + Right click
-                            e.preventDefault();
-                            handleChord(r, c);
-                        }
-                    });
-                    
-                    updateCell(cell, r, c);
-                    boardEl.appendChild(cell);
-                }
-            }
-        }
+function saveScore(){
+    if(!askingForName){
+        askingForName=true;
+        document.getElementById("nameInput").style.display="block";
+        document.getElementById("yesBtn").textContent="Save";
+        return;
+    }
+    let n=document.getElementById("playerName").value.trim();
+    if(!n)return;
+    highscores.push({name:n,difficulty,time:seconds});
+    localStorage.setItem("minesweeperHighscores",JSON.stringify(highscores));
+    closeModal();
+}
 
-        function updateCell(cell, r, c) {
-            // Clear all classes first
-            cell.className = 'cell';
-            
-            if (flagged[r][c]) {
-                cell.classList.add('flagged');
-                cell.textContent = '🚩';
-            } else if (revealed[r][c]) {
-                cell.classList.add('revealed');
-                if (board[r][c] === -1) {
-                    cell.classList.add('mine');
-                    cell.textContent = '💣';
-                } else if (board[r][c] > 0) {
-                    cell.textContent = board[r][c];
-                    cell.classList.add(`num-${board[r][c]}`);
-                }
-            } else {
-                cell.textContent = '';
-            }
-        }
-
-        function handleClick(r, c) {
-            if (gameOver || revealed[r][c] || flagged[r][c]) return;
-            
-            if (firstClick) {
-                generateBoard(r, c);
-                firstClick = false;
-            }
-            
-            startTimer();
-            
-            if (board[r][c] === -1) {
-                gameOver = true;
-                revealAll();
-                document.getElementById('message').innerHTML = '<span class="lose">💥 Game Over!</span>';
-                clearInterval(timerInterval);
-                return;
-            }
-            
-            reveal(r, c);
-            checkWin();
-        }
-
-        function handleRightClick(r, c) {
-            if (gameOver || revealed[r][c]) return;
-            
-            flagged[r][c] = !flagged[r][c];
-            const flagCount = flagged.flat().filter(f => f).length;
-            document.getElementById('flagCount').textContent = flagCount;
-            
-            const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-            updateCell(cell, r, c);
-        }
-
-        function handleChord(r, c) {
-            if (gameOver || !revealed[r][c] || board[r][c] === 0) return;
-            
-            const cellValue = board[r][c];
-            if (cellValue === -1) return;
-            
-            // Count flagged neighbors
-            let flaggedCount = 0;
-            const neighbors = [];
-            
-            for (let dr = -1; dr <= 1; dr++) {
-                for (let dc = -1; dc <= 1; dc++) {
-                    if (dr === 0 && dc === 0) continue;
-                    const nr = r + dr, nc = c + dc;
-                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-                        neighbors.push({r: nr, c: nc});
-                        if (flagged[nr][nc]) {
-                            flaggedCount++;
-                        }
-                    }
-                }
-            }
-            
-            // If the number of flags matches the cell number, reveal all non-flagged neighbors
-            if (flaggedCount === cellValue) {
-                neighbors.forEach(({r: nr, c: nc}) => {
-                    if (!flagged[nr][nc] && !revealed[nr][nc]) {
-                        if (board[nr][nc] === -1) {
-                            // Hit a mine - game over
-                            gameOver = true;
-                            revealAll();
-                            document.getElementById('message').innerHTML = '<span class="lose">💥 Game Over!</span>';
-                            clearInterval(timerInterval);
-                        } else {
-                            reveal(nr, nc);
-                        }
-                    }
-                });
-                
-                if (!gameOver) {
-                    checkWin();
-                }
-            }
-        }
-
-        function reveal(r, c) {
-            if (r < 0 || r >= rows || c < 0 || c >= cols || revealed[r][c] || flagged[r][c]) return;
-            
-            revealed[r][c] = true;
-            const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-            updateCell(cell, r, c);
-            
-            if (board[r][c] === 0) {
-                for (let dr = -1; dr <= 1; dr++) {
-                    for (let dc = -1; dc <= 1; dc++) {
-                        if (dr === 0 && dc === 0) continue;
-                        reveal(r + dr, c + dc);
-                    }
-                }
-            }
-        }
-
-        function revealAll() {
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    revealed[r][c] = true;
-                    const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                    updateCell(cell, r, c);
-                }
-            }
-        }
-
-        function checkWin() {
-            let allRevealed = true;
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    if (board[r][c] !== -1 && !revealed[r][c]) {
-                        allRevealed = false;
-                        break;
-                    }
-                }
-                if (!allRevealed) break;
-            }
-            
-            if (allRevealed) {
-                gameOver = true;
-                clearInterval(timerInterval);
-                document.getElementById('message').innerHTML = '<span class="win">🎉 You Win!</span>';
-                showWinModal();
-            }
-        }
-
-        loadHighscores();
-        newGame();
-    </script>
+newGame();
+</script>
 </body>
 </html>

@@ -543,6 +543,12 @@
                         e.preventDefault();
                         handleRightClick(r, c);
                     });
+                    cell.addEventListener('mousedown', (e) => {
+                        if (e.button === 0 && e.buttons === 3) { // Left + Right click
+                            e.preventDefault();
+                            handleChord(r, c);
+                        }
+                    });
                     
                     updateCell(cell, r, c);
                     boardEl.appendChild(cell);
@@ -602,6 +608,51 @@
             
             const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
             updateCell(cell, r, c);
+        }
+
+        function handleChord(r, c) {
+            if (gameOver || !revealed[r][c] || board[r][c] === 0) return;
+            
+            const cellValue = board[r][c];
+            if (cellValue === -1) return;
+            
+            // Count flagged neighbors
+            let flaggedCount = 0;
+            const neighbors = [];
+            
+            for (let dr = -1; dr <= 1; dr++) {
+                for (let dc = -1; dc <= 1; dc++) {
+                    if (dr === 0 && dc === 0) continue;
+                    const nr = r + dr, nc = c + dc;
+                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                        neighbors.push({r: nr, c: nc});
+                        if (flagged[nr][nc]) {
+                            flaggedCount++;
+                        }
+                    }
+                }
+            }
+            
+            // If the number of flags matches the cell number, reveal all non-flagged neighbors
+            if (flaggedCount === cellValue) {
+                neighbors.forEach(({r: nr, c: nc}) => {
+                    if (!flagged[nr][nc] && !revealed[nr][nc]) {
+                        if (board[nr][nc] === -1) {
+                            // Hit a mine - game over
+                            gameOver = true;
+                            revealAll();
+                            document.getElementById('message').innerHTML = '<span class="lose">💥 Game Over!</span>';
+                            clearInterval(timerInterval);
+                        } else {
+                            reveal(nr, nc);
+                        }
+                    }
+                });
+                
+                if (!gameOver) {
+                    checkWin();
+                }
+            }
         }
 
         function reveal(r, c) {

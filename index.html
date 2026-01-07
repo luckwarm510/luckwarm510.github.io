@@ -2,86 +2,57 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>No-Guess Minesweeper</title>
 
 <style>
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 body {
+    background: #3a3a3a;
     font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
-    background: #808080;
-    min-height: 100vh;
     display: flex;
     justify-content: center;
-    align-items: center;
+    padding: 30px;
 }
 
-/* ---------- WINDOW ---------- */
+/* ===== MAIN WINDOW ===== */
 
-.container {
+.window {
     background: #c0c0c0;
-    padding: 12px;
-    border: 2px solid #fff;
+    padding: 10px;
+    border: 2px solid #ffffff;
     border-right-color: #404040;
     border-bottom-color: #404040;
+    width: max-content;
 }
 
-/* ---------- TITLE ---------- */
+/* ===== TITLE BAR ===== */
 
-h1 {
-    font-size: 16px;
-    background: #000080;
-    color: white;
+.titlebar {
+    background: #000000;
+    color: #ffffff;
     padding: 6px;
-    margin-bottom: 8px;
-    border: 1px solid black;
+    font-size: 14px;
     text-align: center;
+    margin-bottom: 8px;
 }
 
-/* ---------- DIFFICULTY ---------- */
+/* ===== CONTROLS ===== */
 
-.difficulty {
+.controls {
     display: flex;
     justify-content: center;
     gap: 4px;
     margin-bottom: 6px;
 }
 
-.difficulty button.active {
-    border: 2px inset #808080;
-    font-weight: bold;
-}
-
-/* ---------- INFO BAR ---------- */
-
-.info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
-}
-
-.stat {
-    background: black;
-    color: red;
-    font-family: "Courier New", monospace;
-    padding: 4px 6px;
-    border: 2px inset #808080;
-    min-width: 80px;
-    text-align: center;
-}
-
-/* ---------- BUTTONS ---------- */
-
 button {
     background: #c0c0c0;
-    border: 2px solid #fff;
+    border: 2px solid #ffffff;
     border-right-color: #404040;
     border-bottom-color: #404040;
     padding: 4px 10px;
@@ -91,11 +62,35 @@ button {
 
 button:active {
     border: 2px solid #404040;
-    border-right-color: #fff;
-    border-bottom-color: #fff;
+    border-right-color: #ffffff;
+    border-bottom-color: #ffffff;
 }
 
-/* ---------- BOARD ---------- */
+button.active {
+    border: 2px inset #808080;
+    font-weight: bold;
+}
+
+/* ===== STATUS BAR ===== */
+
+.status {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.panel {
+    background: #000000;
+    color: #ffffff;
+    font-family: "Courier New", monospace;
+    padding: 4px 6px;
+    border: 2px inset #808080;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* ===== BOARD ===== */
 
 #board {
     display: grid;
@@ -104,13 +99,13 @@ button:active {
     border: 2px inset #808080;
 }
 
-/* ---------- CELLS ---------- */
+/* ===== CELLS ===== */
 
 .cell {
     width: 24px;
     height: 24px;
     background: #c0c0c0;
-    border: 2px solid #fff;
+    border: 2px solid #ffffff;
     border-right-color: #404040;
     border-bottom-color: #404040;
     font-size: 13px;
@@ -118,235 +113,133 @@ button:active {
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     user-select: none;
-}
-
-.cell:active:not(.revealed) {
-    border: 2px solid #404040;
-    border-right-color: #fff;
-    border-bottom-color: #fff;
+    cursor: pointer;
 }
 
 .cell.revealed {
+    background: #b0b0b0;
     border: 1px solid #808080;
     cursor: default;
 }
 
 .cell.flagged {
-    background: #c0c0c0;
+    background: #a0a0a0;
 }
-
-/* ---------- NUMBERS ---------- */
-
-.cell.num-1 { color: blue; }
-.cell.num-2 { color: green; }
-.cell.num-3 { color: red; }
-.cell.num-4 { color: navy; }
-.cell.num-5 { color: maroon; }
-.cell.num-6 { color: teal; }
-.cell.num-7 { color: black; }
-.cell.num-8 { color: gray; }
-
-/* ---------- MINE ---------- */
 
 .cell.mine {
-    background: red;
-    color: black;
+    background: #000000;
+    color: #ffffff;
 }
 
-/* ---------- MESSAGE ---------- */
+/* numbers stay grayscale */
+.num-1,.num-2,.num-3,.num-4,.num-5,.num-6,.num-7,.num-8 {
+    color: #000000;
+}
+
+/* ===== MESSAGE ===== */
 
 .message {
-    text-align: center;
-    font-size: 13px;
-    font-weight: bold;
     margin-top: 6px;
+    text-align: center;
+    font-weight: bold;
+    font-size: 12px;
 }
 
-/* ---------- HIGHSCORES ---------- */
+/* ===== HIGHSCORES ===== */
 
-.highscores {
+.scores {
     margin-top: 10px;
     background: #c0c0c0;
-    padding: 8px;
     border: 2px inset #808080;
+    padding: 6px;
 }
 
-.highscores h2 {
+.scores h2 {
     font-size: 13px;
+    text-align: center;
     margin-bottom: 6px;
 }
 
-.highscores table {
+table {
     width: 100%;
     border-collapse: collapse;
     font-size: 12px;
 }
 
-.highscores th,
-.highscores td {
+th, td {
     border: 1px solid #808080;
     padding: 4px;
-}
-
-/* ---------- MODAL ---------- */
-
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.5);
-    justify-content: center;
-    align-items: center;
-}
-
-.modal.show {
-    display: flex;
-}
-
-.modal-content {
-    background: #c0c0c0;
-    padding: 12px;
-    border: 2px solid #fff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
-    width: 300px;
-}
-
-.modal-content h2 {
-    font-size: 14px;
-    margin-bottom: 8px;
-}
-
-.modal-content input {
-    width: 100%;
-    padding: 4px;
-    border: 2px inset #808080;
-    font-family: "Courier New", monospace;
-}
-
-.modal-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 6px;
-    margin-top: 8px;
+    text-align: center;
 }
 </style>
 </head>
 
 <body>
-<div class="container">
-    <h1>No-Guess Minesweeper</h1>
 
-    <div class="difficulty">
-        <button id="btn-easy" class="active" onclick="setDifficulty('easy')">Easy</button>
-        <button id="btn-medium" onclick="setDifficulty('medium')">Medium</button>
-        <button id="btn-hard" onclick="setDifficulty('hard')">Hard</button>
+<div class="window">
+
+    <div class="titlebar">No-Guess Minesweeper</div>
+
+    <div class="controls">
+        <button id="easy" class="active" onclick="setDifficulty('easy')">Easy</button>
+        <button id="medium" onclick="setDifficulty('medium')">Medium</button>
+        <button id="hard" onclick="setDifficulty('hard')">Hard</button>
     </div>
 
-    <div class="info">
-        <div class="stat">Mines: <span id="mineCount">10</span></div>
-        <button onclick="newGame()">New</button>
-        <div class="stat">Time: <span id="timer">0</span></div>
-        <div class="stat">Flags: <span id="flagCount">0</span></div>
+    <div class="status">
+        <div class="panel">MINES <span id="mines">10</span></div>
+        <button onclick="newGame()">NEW</button>
+        <div class="panel">TIME <span id="time">0</span></div>
+        <div class="panel">FLAGS <span id="flags">0</span></div>
     </div>
 
     <div id="board"></div>
     <div class="message" id="message"></div>
 
-    <div class="highscores">
-        <h2>High Scores</h2>
+    <div class="scores">
+        <h2>HIGH SCORES</h2>
         <table>
-            <thead>
-                <tr><th>Rank</th><th>Name</th><th>Diff</th><th>Time</th></tr>
-            </thead>
-            <tbody id="highscoreBody">
-                <tr><td colspan="4" style="text-align:center;">No scores yet</td></tr>
-            </tbody>
+            <tr><th>Rank</th><th>Name</th><th>Diff</th><th>Time</th></tr>
+            <tr><td colspan="4">No scores yet</td></tr>
         </table>
     </div>
-</div>
 
-<div class="modal" id="winModal">
-    <div class="modal-content">
-        <h2>You Win</h2>
-        <p>Time: <span id="winTime">0</span> seconds</p>
-        <div id="nameInput" style="display:none;">
-            <input id="playerName" maxlength="20" placeholder="Your name">
-        </div>
-        <div class="modal-buttons">
-            <button onclick="saveScore()" id="yesBtn">Yes</button>
-            <button onclick="closeModal()">No</button>
-        </div>
-    </div>
 </div>
 
 <script>
-let rows=9,cols=9,mines=10;
-let board=[],revealed=[],flagged=[];
-let gameOver=false,firstClick=true,seconds=0,timerInterval;
-let difficulty="easy";
-let highscores=JSON.parse(localStorage.getItem("minesweeperHighscores"))||[];
-let askingForName=false;
+let rows=9, cols=9, mines=10;
+let board=[], revealed=[], flagged=[];
+let firstClick=true, gameOver=false;
+let timer=0, interval;
 
-const difficulties={
+const diffs={
     easy:{rows:9,cols:9,mines:10},
     medium:{rows:16,cols:16,mines:40},
     hard:{rows:16,cols:30,mines:99}
 };
 
-function setDifficulty(l){
-    difficulty=l;
-    Object.assign({rows,cols,mines},difficulties[l]);
-    document.querySelectorAll(".difficulty button").forEach(b=>b.classList.remove("active"));
-    document.getElementById("btn-"+l).classList.add("active");
+function setDifficulty(d){
+    Object.assign({rows,cols,mines},diffs[d]);
+    document.querySelectorAll(".controls button").forEach(b=>b.classList.remove("active"));
+    document.getElementById(d).classList.add("active");
     newGame();
 }
 
 function newGame(){
-    gameOver=false;firstClick=true;seconds=0;
-    clearInterval(timerInterval);
-    document.getElementById("timer").textContent="0";
-    document.getElementById("flagCount").textContent="0";
-    document.getElementById("mineCount").textContent=mines;
+    clearInterval(interval);
+    timer=0; firstClick=true; gameOver=false;
+    document.getElementById("time").textContent=0;
+    document.getElementById("flags").textContent=0;
+    document.getElementById("mines").textContent=mines;
     document.getElementById("message").textContent="";
     board=Array(rows).fill().map(()=>Array(cols).fill(0));
     revealed=Array(rows).fill().map(()=>Array(cols).fill(false));
     flagged=Array(rows).fill().map(()=>Array(cols).fill(false));
-    renderBoard();
+    draw();
 }
 
-function startTimer(){
-    timerInterval=setInterval(()=>{
-        seconds++;
-        document.getElementById("timer").textContent=seconds;
-    },1000);
-}
-
-function generateBoard(sr,sc){
-    while(true){
-        board=Array(rows).fill().map(()=>Array(cols).fill(0));
-        let placed=0;
-        while(placed<mines){
-            let r=Math.random()*rows|0,c=Math.random()*cols|0;
-            if(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1)continue;
-            if(board[r][c]!==-1){board[r][c]=-1;placed++;}
-        }
-        for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-            if(board[r][c]===-1)continue;
-            let n=0;
-            for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-                let nr=r+dr,nc=c+dc;
-                if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&board[nr][nc]===-1)n++;
-            }
-            board[r][c]=n;
-        }
-        break;
-    }
-}
-
-function renderBoard(){
+function draw(){
     const b=document.getElementById("board");
     b.innerHTML="";
     b.style.gridTemplateColumns=`repeat(${cols},24px)`;
@@ -354,70 +247,70 @@ function renderBoard(){
         let d=document.createElement("div");
         d.className="cell";
         d.onclick=()=>click(r,c);
-        d.oncontextmenu=e=>{e.preventDefault();right(r,c);};
-        d.dataset.row=r;d.dataset.col=c;
+        d.oncontextmenu=e=>{e.preventDefault();flag(r,c)};
+        d.dataset.r=r; d.dataset.c=c;
         b.appendChild(d);
+    }
+}
+
+function startTimer(){
+    interval=setInterval(()=>{timer++;document.getElementById("time").textContent=timer;},1000);
+}
+
+function place(sr,sc){
+    let placed=0;
+    while(placed<mines){
+        let r=Math.random()*rows|0,c=Math.random()*cols|0;
+        if(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1)continue;
+        if(board[r][c]!==-1){board[r][c]=-1;placed++;}
+    }
+    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
+        if(board[r][c]===-1)continue;
+        let n=0;
+        for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+            let nr=r+dr,nc=c+dc;
+            if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&board[nr][nc]===-1)n++;
+        }
+        board[r][c]=n;
     }
 }
 
 function click(r,c){
     if(gameOver||revealed[r][c]||flagged[r][c])return;
-    if(firstClick){generateBoard(r,c);firstClick=false;startTimer();}
-    if(board[r][c]===-1){gameOver=true;revealAll();document.getElementById("message").textContent="Game Over";clearInterval(timerInterval);return;}
+    if(firstClick){place(r,c);startTimer();firstClick=false;}
+    if(board[r][c]===-1){gameOver=true;showAll();document.getElementById("message").textContent="GAME OVER";clearInterval(interval);return;}
     reveal(r,c);checkWin();
 }
 
-function right(r,c){
+function flag(r,c){
     if(gameOver||revealed[r][c])return;
     flagged[r][c]=!flagged[r][c];
-    document.getElementById("flagCount").textContent=flagged.flat().filter(Boolean).length;
+    document.getElementById("flags").textContent=flagged.flat().filter(Boolean).length;
     update(r,c);
 }
 
 function reveal(r,c){
     if(r<0||c<0||r>=rows||c>=cols||revealed[r][c]||flagged[r][c])return;
-    revealed[r][c]=true;update(r,c);
+    revealed[r][c]=true; update(r,c);
     if(board[r][c]===0)for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(dr||dc)reveal(r+dr,c+dc);
 }
 
 function update(r,c){
-    const d=document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+    let d=document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
     d.className="cell";
-    if(flagged[r][c]){d.textContent="F";return;}
-    if(!revealed[r][c]){d.textContent="";return;}
+    if(flagged[r][c]){d.classList.add("flagged");d.textContent="F";return;}
+    if(!revealed[r][c])return;
     d.classList.add("revealed");
     if(board[r][c]===-1){d.classList.add("mine");d.textContent="*";}
     else if(board[r][c]>0){d.textContent=board[r][c];d.classList.add("num-"+board[r][c]);}
 }
 
-function revealAll(){for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){revealed[r][c]=true;update(r,c);}}
+function showAll(){for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){revealed[r][c]=true;update(r,c);}}
 
 function checkWin(){
     for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)if(board[r][c]!==-1&&!revealed[r][c])return;
-    gameOver=true;clearInterval(timerInterval);
-    document.getElementById("message").textContent="You Win";
-    showWinModal();
-}
-
-function showWinModal(){
-    document.getElementById("winTime").textContent=seconds;
-    document.getElementById("winModal").classList.add("show");
-}
-
-function closeModal(){document.getElementById("winModal").classList.remove("show");}
-
-function saveScore(){
-    if(!askingForName){
-        askingForName=true;
-        document.getElementById("nameInput").style.display="block";
-        document.getElementById("yesBtn").textContent="Save";
-        return;
-    }
-    let n=document.getElementById("playerName").value.trim();
-    if(!n)return;
-    highscores.push({name:n,difficulty,time:seconds});
-    localStorage.setItem("minesweeperHighscores",JSON.stringify(highscores));
-    closeModal();
+    gameOver=true;clearInterval(interval);
+    document.getElementById("message").textContent="YOU WIN";
 }
 
 newGame();

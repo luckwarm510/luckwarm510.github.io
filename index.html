@@ -3,360 +3,333 @@
 <head>
 <meta charset="UTF-8">
 <title>No-Guess Minesweeper</title>
-
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-    background: #3a3a3a;
+/* ===== GLOBAL ===== */
+* {
+    box-sizing: border-box;
     font-family: "MS Sans Serif", Tahoma, Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding: 20px;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    background: #808080;
+    color: #000;
+    width: 100%;
+    height: 100%;
     overflow: auto;
 }
 
 /* ===== LAYOUT ===== */
-.layout {
+#app {
     display: flex;
     gap: 12px;
-    max-width: 65vw;
+    padding: 12px;
+    min-width: max-content;
 }
-
-.layout.vertical {
+#app.right {
+    flex-direction: row;
+}
+#app.bottom {
     flex-direction: column;
 }
 
-/* ===== MAIN WINDOW ===== */
+/* ===== WINDOW ===== */
 .window {
     background: #c0c0c0;
-    padding: 10px;
-    border: 2px solid #fff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
+    padding: 8px;
 }
-
-/* ===== TITLE BAR ===== */
 .titlebar {
     background: #000;
     color: #fff;
-    padding: 6px;
-    font-size: 14px;
-    text-align: center;
-    position: relative;
-}
-
-.toggleScores {
-    position: absolute;
-    right: 4px;
-    top: 2px;
-    padding: 2px 6px;
-    font-size: 11px;
-}
-
-/* ===== CONTROLS ===== */
-.controls {
+    padding: 4px 6px;
     display: flex;
-    justify-content: center;
-    gap: 4px;
-    margin: 6px 0;
+    justify-content: space-between;
+    align-items: center;
 }
-
 button {
     background: #c0c0c0;
-    border: 2px solid #fff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
     padding: 4px 10px;
-    font-size: 12px;
     cursor: pointer;
 }
-
 button:active {
-    border: 2px solid #404040;
-    border-right-color: #fff;
-    border-bottom-color: #fff;
+    border-color: #404040 #fff #fff #404040;
 }
 
-button.active {
-    border: 2px inset #808080;
-    font-weight: bold;
-}
-
-/* ===== STATUS ===== */
-.status {
+/* ===== GAME UI ===== */
+#top {
     display: flex;
-    gap: 6px;
     justify-content: space-between;
     margin-bottom: 6px;
 }
-
-.panel {
+.counter {
     background: #000;
     color: #fff;
-    font-family: "Courier New", monospace;
-    padding: 4px 6px;
-    border: 2px inset #808080;
+    padding: 4px 8px;
     min-width: 80px;
     text-align: center;
 }
-
-/* ===== BOARD ===== */
 #board {
     display: grid;
     background: #808080;
-    padding: 4px;
-    border: 2px inset #808080;
+    border: 2px solid;
+    border-color: #404040 #fff #fff #404040;
 }
-
-/* ===== CELLS ===== */
 .cell {
-    width: 24px;
-    height: 24px;
+    width: 26px;
+    height: 26px;
     background: #c0c0c0;
-    border: 2px solid #fff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
+    border: 2px solid;
+    border-color: #fff #404040 #404040 #fff;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
     user-select: none;
-}
-
-.cell.revealed {
-    background: #b0b0b0;
-    border: 1px solid #808080;
-    cursor: default;
-}
-
-.cell.flagged { background: #a0a0a0; }
-.cell.mine { background: #000; color: #fff; }
-
-.num-1,.num-2,.num-3,.num-4,.num-5,.num-6,.num-7,.num-8 { color:#000; }
-
-/* ===== MESSAGE ===== */
-.message {
-    text-align: center;
-    margin-top: 6px;
     font-weight: bold;
-    font-size: 12px;
+}
+.cell.revealed {
+    border: 1px solid #808080;
+    background: #c0c0c0;
+}
+.cell.flag {
+    background: #c0c0c0;
+}
+.cell.mine {
+    background: #c0c0c0;
 }
 
 /* ===== SCORES ===== */
-.scores {
-    background: #c0c0c0;
-    padding: 6px;
-    border: 2px inset #808080;
-    min-width: 180px;
+#scores {
+    min-width: 220px;
 }
-
-.scores h2 {
-    text-align: center;
-    font-size: 13px;
-    margin-bottom: 6px;
-}
-
 table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 12px;
 }
-
 th, td {
-    border: 1px solid #808080;
+    border: 1px solid #404040;
     padding: 4px;
     text-align: center;
 }
 
-/* ===== MOBILE SAFETY ===== */
-@media (max-width: 900px) {
-    .layout {
-        flex-direction: column;
-        max-width: 100%;
-    }
+/* ===== MODAL ===== */
+#modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+#modal .window {
+    width: 260px;
+}
+input {
+    width: 100%;
+    margin-top: 6px;
 }
 </style>
 </head>
-
 <body>
 
-<div class="layout" id="layout">
-
-<!-- GAME -->
-<div class="window">
-    <div class="titlebar">
-        No-Guess Minesweeper
-        <button class="toggleScores" onclick="toggleScores()">Scores</button>
-    </div>
-
-    <div class="controls">
-        <button id="easy" class="active" onclick="setDifficulty('easy')">Easy</button>
-        <button id="medium" onclick="setDifficulty('medium')">Medium</button>
-        <button id="hard" onclick="setDifficulty('hard')">Hard</button>
-    </div>
-
-    <div class="status">
-        <div class="panel">MINES <span id="mines">10</span></div>
-        <button onclick="newGame()">NEW</button>
-        <div class="panel">TIME <span id="time">0</span></div>
-        <div class="panel">FLAGS <span id="flags">0</span></div>
-    </div>
-
-    <div id="board"></div>
-    <div class="message" id="message"></div>
+<div class="titlebar">
+    <span>No-Guess Minesweeper</span>
+    <button id="toggleScores">Toggle Scores</button>
 </div>
 
-<!-- SCORES -->
-<div class="scores">
-    <h2>HIGH SCORES</h2>
-    <table>
-        <tr><th>R</th><th>N</th><th>D</th><th>T</th></tr>
-        <tr><td colspan="4">None</td></tr>
-    </table>
+<div id="app" class="right">
+
+    <!-- GAME -->
+    <div class="window">
+        <div id="top">
+            <div class="counter">Mines: <span id="mines"></span></div>
+            <button id="newGame">New</button>
+            <div class="counter">Time: <span id="time">0</span></div>
+        </div>
+        <div id="board"></div>
+    </div>
+
+    <!-- SCORES -->
+    <div id="scores" class="window">
+        <h4>High Scores</h4>
+        <table>
+            <thead>
+                <tr><th>Name</th><th>Time</th></tr>
+            </thead>
+            <tbody id="scoreTable"></tbody>
+        </table>
+    </div>
+
 </div>
 
+<!-- MODAL -->
+<div id="modal">
+    <div class="window">
+        <div id="modalText"></div>
+        <div id="modalButtons"></div>
+    </div>
 </div>
 
 <script>
-let rows=9, cols=9, mines=10;
-let board=[], revealed=[], flagged=[];
-let first=true, over=false;
-let time=0, timer;
+const rows = 9, cols = 9, mineCount = 10;
+let board = [], revealed = 0, flags = 0, time = 0, timer;
+const boardEl = document.getElementById("board");
 
-const diffs={
-    easy:{rows:9,cols:9,mines:10},
-    medium:{rows:16,cols:16,mines:40},
-    hard:{rows:16,cols:30,mines:99}
+boardEl.style.gridTemplateColumns = `repeat(${cols}, 26px)`;
+
+function start() {
+    clearInterval(timer);
+    time = 0;
+    revealed = 0;
+    flags = 0;
+    document.getElementById("time").textContent = 0;
+    document.getElementById("mines").textContent = mineCount;
+    board = [];
+    boardEl.innerHTML = "";
+
+    for (let r=0;r<rows;r++) {
+        board[r] = [];
+        for (let c=0;c<cols;c++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            cell.oncontextmenu = e => e.preventDefault();
+            boardEl.appendChild(cell);
+            board[r][c] = {cell,mine:false,flag:false,revealed:false,count:0};
+            cell.onmousedown = e => clickCell(e,r,c);
+        }
+    }
+
+    let placed = 0;
+    while (placed < mineCount) {
+        let r = Math.random()*rows|0, c = Math.random()*cols|0;
+        if (!board[r][c].mine) {
+            board[r][c].mine = true;
+            placed++;
+        }
+    }
+
+    for (let r=0;r<rows;r++)
+        for (let c=0;c<cols;c++)
+            board[r][c].count = countMines(r,c);
+
+    timer = setInterval(()=>document.getElementById("time").textContent=++time,1000);
+}
+
+function countMines(r,c) {
+    let n=0;
+    for (let i=-1;i<=1;i++)
+        for (let j=-1;j<=1;j++) {
+            let nr=r+i,nc=c+j;
+            if (board[nr]?.[nc]?.mine) n++;
+        }
+    return n;
+}
+
+function clickCell(e,r,c) {
+    const cell = board[r][c];
+    if (e.button===2) {
+        if (cell.revealed) {
+            chord(r,c);
+            return;
+        }
+        if (!cell.flag) {
+            cell.flag=true; flags++;
+            cell.cell.textContent="F";
+        } else {
+            cell.flag=false; flags--;
+            cell.cell.textContent="";
+        }
+        return;
+    }
+    reveal(r,c);
+}
+
+function reveal(r,c) {
+    const cell = board[r][c];
+    if (!cell || cell.revealed || cell.flag) return;
+    cell.revealed = true;
+    cell.cell.classList.add("revealed");
+    revealed++;
+    if (cell.mine) {
+        cell.cell.textContent="*";
+        clearInterval(timer);
+        alert("Game Over");
+        return;
+    }
+    if (cell.count>0) cell.cell.textContent = cell.count;
+    else for (let i=-1;i<=1;i++)
+        for (let j=-1;j<=1;j++)
+            reveal(r+i,c+j);
+
+    if (revealed === rows*cols-mineCount) win();
+}
+
+function chord(r,c) {
+    const cell = board[r][c];
+    let f=0;
+    for (let i=-1;i<=1;i++)
+        for (let j=-1;j<=1;j++)
+            if (board[r+i]?.[c+j]?.flag) f++;
+    if (f===cell.count)
+        for (let i=-1;i<=1;i++)
+            for (let j=-1;j<=1;j++)
+                reveal(r+i,c+j);
+}
+
+function win() {
+    clearInterval(timer);
+    showModal();
+}
+
+function showModal() {
+    const modal = document.getElementById("modal");
+    modal.style.display="flex";
+    modalText.textContent="Register your record?";
+    modalButtons.innerHTML="";
+    modalButtons.append(
+        btn("Yes",askName),
+        btn("No",()=>modal.style.display="none")
+    );
+}
+
+function askName() {
+    modalText.textContent="Your name:";
+    modalButtons.innerHTML="";
+    const input=document.createElement("input");
+    modalButtons.append(input, btn("Save",()=>{
+        saveScore(input.value);
+        modal.style.display="none";
+    }));
+}
+
+function btn(t,f){const b=document.createElement("button");b.textContent=t;b.onclick=f;return b;}
+
+function saveScore(name){
+    const s=JSON.parse(localStorage.scores||"[]");
+    s.push({name,time});
+    localStorage.scores=JSON.stringify(s);
+    loadScores();
+}
+
+function loadScores(){
+    scoreTable.innerHTML="";
+    (JSON.parse(localStorage.scores||"[]"))
+        .sort((a,b)=>a.time-b.time)
+        .forEach(s=>{
+            scoreTable.innerHTML+=`<tr><td>${s.name}</td><td>${s.time}</td></tr>`;
+        });
+}
+
+toggleScores.onclick=()=>{
+    app.className = app.className==="right"?"bottom":"right";
 };
 
-function toggleScores(){
-    document.getElementById("layout").classList.toggle("vertical");
-}
-
-function setDifficulty(d){
-    ({rows,cols,mines}=diffs[d]);
-    document.querySelectorAll(".controls button").forEach(b=>b.classList.remove("active"));
-    document.getElementById(d).classList.add("active");
-    newGame();
-}
-
-function newGame(){
-    clearInterval(timer);
-    time=0; first=true; over=false;
-    document.getElementById("time").textContent=0;
-    document.getElementById("flags").textContent=0;
-    document.getElementById("mines").textContent=mines;
-    document.getElementById("message").textContent="";
-    board=Array(rows).fill().map(()=>Array(cols).fill(0));
-    revealed=Array(rows).fill().map(()=>Array(cols).fill(false));
-    flagged=Array(rows).fill().map(()=>Array(cols).fill(false));
-    draw();
-}
-
-function draw(){
-    const b=document.getElementById("board");
-    b.innerHTML="";
-    b.style.gridTemplateColumns=`repeat(${cols},24px)`;
-    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-        let d=document.createElement("div");
-        d.className="cell";
-        d.onclick=()=>leftClick(r,c);
-        d.oncontextmenu=e=>{e.preventDefault();rightClick(r,c)};
-        d.dataset.r=r; d.dataset.c=c;
-        b.appendChild(d);
-    }
-}
-
-function startTimer(){
-    timer=setInterval(()=>{time++;document.getElementById("time").textContent=time;},1000);
-}
-
-function place(sr,sc){
-    let p=0;
-    while(p<mines){
-        let r=Math.random()*rows|0,c=Math.random()*cols|0;
-        if(Math.abs(r-sr)<=1&&Math.abs(c-sc)<=1)continue;
-        if(board[r][c]!==-1){board[r][c]=-1;p++;}
-    }
-    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){
-        if(board[r][c]===-1)continue;
-        let n=0;
-        for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-            let nr=r+dr,nc=c+dc;
-            if(nr>=0&&nr<rows&&nc>=0&&nc<cols&&board[nr][nc]===-1)n++;
-        }
-        board[r][c]=n;
-    }
-}
-
-function leftClick(r,c){
-    if(over||flagged[r][c])return;
-    if(first){place(r,c);startTimer();first=false;}
-    if(board[r][c]===-1){lose();return;}
-    reveal(r,c);checkWin();
-}
-
-function rightClick(r,c){
-    if(over)return;
-    if(revealed[r][c]){chord(r,c);return;}
-    flagged[r][c]=!flagged[r][c];
-    document.getElementById("flags").textContent=flagged.flat().filter(Boolean).length;
-    update(r,c);
-}
-
-function chord(r,c){
-    if(board[r][c]<=0)return;
-    let f=0,cells=[];
-    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
-        let nr=r+dr,nc=c+dc;
-        if(nr>=0&&nr<rows&&nc>=0&&nc<cols){
-            if(flagged[nr][nc])f++;
-            else if(!revealed[nr][nc])cells.push([nr,nc]);
-        }
-    }
-    if(f===board[r][c]){
-        cells.forEach(([rr,cc])=>{
-            if(board[rr][cc]===-1)lose();
-            else reveal(rr,cc);
-        });
-    }
-}
-
-function reveal(r,c){
-    if(r<0||c<0||r>=rows||c>=cols||revealed[r][c]||flagged[r][c])return;
-    revealed[r][c]=true; update(r,c);
-    if(board[r][c]===0)
-        for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)
-            if(dr||dc)reveal(r+dr,c+dc);
-}
-
-function update(r,c){
-    let d=document.querySelector(`[data-r="${r}"][data-c="${c}"]`);
-    d.className="cell";
-    if(flagged[r][c]){d.classList.add("flagged");d.textContent="F";return;}
-    if(!revealed[r][c])return;
-    d.classList.add("revealed");
-    if(board[r][c]===-1){d.classList.add("mine");d.textContent="*";}
-    else if(board[r][c]>0){d.textContent=board[r][c];d.classList.add("num-"+board[r][c]);}
-}
-
-function lose(){
-    over=true;clearInterval(timer);
-    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){revealed[r][c]=true;update(r,c);}
-    document.getElementById("message").textContent="GAME OVER";
-}
-
-function checkWin(){
-    for(let r=0;r<rows;r++)for(let c=0;c<cols;c++)
-        if(board[r][c]!==-1&&!revealed[r][c])return;
-    over=true;clearInterval(timer);
-    document.getElementById("message").textContent="YOU WIN";
-}
-
-newGame();
+newGame.onclick=start;
+loadScores();
+start();
 </script>
 </body>
 </html>

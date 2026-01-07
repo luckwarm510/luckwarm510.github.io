@@ -1,109 +1,658 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <h1>12/30/25</h1>
-  <title>Snake - Jared</title>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-V24Y8L5F29"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-V24Y8L5F29');
-  </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No-Guess Minesweeper</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-  <style>
-    body {
-      text-align: center;
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-    }
-    canvas {
-      background: #000;
-      margin-top: 20px;
-      border: 2px solid white;
-    }
-  </style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .stat {
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .mines { color: #e74c3c; }
+        .timer { color: #3498db; }
+        .flags { color: #f39c12; }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        #board {
+            display: grid;
+            gap: 2px;
+            background: #bdc3c7;
+            padding: 2px;
+            border-radius: 8px;
+            margin: 20px auto 0;
+            width: fit-content;
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            background: #95a5a6;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cell:hover:not(.revealed):not(.flagged) {
+            background: #7f8c8d;
+        }
+
+        .cell.revealed {
+            background: #ecf0f1;
+            cursor: default;
+        }
+
+        .cell.flagged {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .cell.mine {
+            background: #c0392b;
+            color: white;
+        }
+
+        .cell.num-1 { color: #3498db; }
+        .cell.num-2 { color: #27ae60; }
+        .cell.num-3 { color: #e74c3c; }
+        .cell.num-4 { color: #8e44ad; }
+        .cell.num-5 { color: #d35400; }
+        .cell.num-6 { color: #16a085; }
+        .cell.num-7 { color: #2c3e50; }
+        .cell.num-8 { color: #95a5a6; }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.3em;
+            font-weight: bold;
+            min-height: 30px;
+        }
+
+        .win { color: #27ae60; }
+        .lose { color: #e74c3c; }
+
+        .difficulty {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .difficulty button {
+            padding: 8px 20px;
+            font-size: 0.9em;
+        }
+
+        .difficulty button.active {
+            background: #764ba2;
+        }
+
+        .highscores {
+            margin-top: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .highscores h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .highscores table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .highscores th {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .highscores td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .highscores tr:hover {
+            background: #e8eaf6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .modal-content h2 {
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .modal-content p {
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #667eea;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            padding: 10px 25px;
+        }
+    </style>
 </head>
-
 <body>
-  <h1> Snake Jared </h1>
-  <p>Use arrow keys</p>
+    <div class="container">
+        <h1>🎮 No-Guess Minesweeper</h1>
+        
+        <div class="difficulty">
+            <button onclick="setDifficulty('easy')" class="active" id="btn-easy">Easy</button>
+            <button onclick="setDifficulty('medium')" id="btn-medium">Medium</button>
+            <button onclick="setDifficulty('hard')" id="btn-hard">Hard</button>
+        </div>
 
-  <canvas id="game" width="400" height="400"></canvas>
+        <div class="info">
+            <div class="stat mines">💣 Mines: <span id="mineCount">10</span></div>
+            <button onclick="newGame()">New Game</button>
+            <div class="stat timer">⏱️ Time: <span id="timer">0</span>s</div>
+            <div class="stat flags">🚩 Flags: <span id="flagCount">0</span></div>
+        </div>
 
-  <script>
-    const canvas = document.getElementById("game");
-    const ctx = canvas.getContext("2d");
+        <div id="board"></div>
+        <div class="message" id="message"></div>
 
-    const box = 20;
-    let snake = [{ x: 9 * box, y: 10 * box }];
-    let food = {
-      x: Math.floor(Math.random() * 19) * box,
-      y: Math.floor(Math.random() * 19) * box
-    };
+        <div class="highscores">
+            <h2>🏆 High Scores</h2>
+            <table id="highscoreTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Difficulty</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody id="highscoreBody">
+                    <tr><td colspan="4" style="text-align: center; color: #999;">No scores yet</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-    let dx = box;
-    let dy = 0;
-    let score = 0;
+    <div class="modal" id="winModal">
+        <div class="modal-content">
+            <h2>🎉 Congratulations!</h2>
+            <p>You won in <span id="winTime">0</span> seconds!</p>
+            <p>Would you like to save your score?</p>
+            <div id="nameInput" style="display: none;">
+                <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+            </div>
+            <div class="modal-buttons">
+                <button onclick="saveScore()" id="yesBtn">Yes</button>
+                <button onclick="closeModal()">No</button>
+            </div>
+        </div>
+    </div>
 
-    document.addEventListener("keydown", direction);
+    <script>
+        let rows = 9, cols = 9, mines = 10;
+        let board = [], revealed = [], flagged = [];
+        let gameOver = false, gameStarted = false;
+        let timerInterval, seconds = 0;
+        let firstClick = true;
+        let difficulty = 'easy';
+        let highscores = JSON.parse(localStorage.getItem('minesweeperHighscores')) || [];
+        let askingForName = false;
 
-    function direction(event) {
-      if (event.key === "ArrowLeft" && dx === 0) {
-        dx = -box; dy = 0;
-      } else if (event.key === "ArrowUp" && dy === 0) {
-        dx = 0; dy = -box;
-      } else if (event.key === "ArrowRight" && dx === 0) {
-        dx = box; dy = 0;
-      } else if (event.key === "ArrowDown" && dy === 0) {
-        dx = 0; dy = box;
-      }
-    }
-
-    function collision(head, body) {
-      return body.some(segment => head.x === segment.x && head.y === segment.y);
-    }
-
-    function draw() {
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "red";
-      ctx.fillRect(food.x, food.y, box, box);
-
-      ctx.fillStyle = "lime";
-      snake.forEach(s => ctx.fillRect(s.x, s.y, box, box));
-
-      let headX = snake[0].x + dx;
-      let headY = snake[0].y + dy;
-
-      if (headX === food.x && headY === food.y) {
-        score++;
-        food = {
-          x: Math.floor(Math.random() * 19) * box,
-          y: Math.floor(Math.random() * 19) * box
+        const difficulties = {
+            easy: { rows: 9, cols: 9, mines: 10 },
+            medium: { rows: 16, cols: 16, mines: 40 },
+            hard: { rows: 16, cols: 30, mines: 99 }
         };
-      } else {
-        snake.pop();
-      }
 
-      const newHead = { x: headX, y: headY };
+        function setDifficulty(level) {
+            difficulty = level;
+            const config = difficulties[level];
+            rows = config.rows;
+            cols = config.cols;
+            mines = config.mines;
+            
+            document.querySelectorAll('.difficulty button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(`btn-${level}`).classList.add('active');
+            
+            newGame();
+        }
 
-      if (
-        headX < 0 || headY < 0 ||
-        headX >= canvas.width || headY >= canvas.height ||
-        collision(newHead, snake)
-      ) {
-        clearInterval(game);
-        alert("Game Over! Score: " + score);
-      }
+        function loadHighscores() {
+            const tbody = document.getElementById('highscoreBody');
+            tbody.innerHTML = '';
+            
+            if (highscores.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">No scores yet</td></tr>';
+                return;
+            }
+            
+            // Sort by time (ascending)
+            highscores.sort((a, b) => a.time - b.time);
+            
+            // Group by difficulty
+            const byDifficulty = { easy: [], medium: [], hard: [] };
+            highscores.forEach(score => {
+                if (byDifficulty[score.difficulty]) {
+                    byDifficulty[score.difficulty].push(score);
+                }
+            });
+            
+            // Show top 5 for each difficulty
+            let rank = 1;
+            ['easy', 'medium', 'hard'].forEach(diff => {
+                byDifficulty[diff].slice(0, 5).forEach(score => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>${rank++}</td>
+                        <td>${score.name}</td>
+                        <td>${score.difficulty.charAt(0).toUpperCase() + score.difficulty.slice(1)}</td>
+                        <td>${score.time}s</td>
+                    `;
+                });
+            });
+        }
 
-      snake.unshift(newHead);
-    }
+        function showWinModal() {
+            document.getElementById('winTime').textContent = seconds;
+            document.getElementById('winModal').classList.add('show');
+            document.getElementById('nameInput').style.display = 'none';
+            document.getElementById('yesBtn').textContent = 'Yes';
+            askingForName = false;
+        }
 
-    const game = setInterval(draw, 120);
-  </script>
+        function closeModal() {
+            document.getElementById('winModal').classList.remove('show');
+            document.getElementById('playerName').value = '';
+        }
+
+        function saveScore() {
+            if (!askingForName) {
+                // First click - show name input
+                askingForName = true;
+                document.getElementById('nameInput').style.display = 'block';
+                document.getElementById('yesBtn').textContent = 'Save';
+                document.getElementById('playerName').focus();
+            } else {
+                // Second click - save the score
+                const name = document.getElementById('playerName').value.trim();
+                if (name === '') {
+                    alert('Please enter a name!');
+                    return;
+                }
+                
+                highscores.push({
+                    name: name,
+                    difficulty: difficulty,
+                    time: seconds
+                });
+                
+                localStorage.setItem('minesweeperHighscores', JSON.stringify(highscores));
+                loadHighscores();
+                closeModal();
+            }
+        }
+
+        // Allow Enter key to submit name
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('playerName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && askingForName) {
+                    saveScore();
+                }
+            });
+        });
+
+        function newGame() {
+            gameOver = false;
+            gameStarted = false;
+            firstClick = true;
+            seconds = 0;
+            clearInterval(timerInterval);
+            document.getElementById('timer').textContent = '0';
+            document.getElementById('message').textContent = '';
+            document.getElementById('flagCount').textContent = '0';
+            document.getElementById('mineCount').textContent = mines;
+            
+            board = Array(rows).fill(null).map(() => Array(cols).fill(0));
+            revealed = Array(rows).fill(null).map(() => Array(cols).fill(false));
+            flagged = Array(rows).fill(null).map(() => Array(cols).fill(false));
+            
+            renderBoard();
+        }
+
+        function startTimer() {
+            if (!gameStarted) {
+                gameStarted = true;
+                timerInterval = setInterval(() => {
+                    seconds++;
+                    document.getElementById('timer').textContent = seconds;
+                }, 1000);
+            }
+        }
+
+        function generateBoard(clickRow, clickCol) {
+            // Generate a solvable board without guessing
+            let attempts = 0;
+            const maxAttempts = 100;
+            
+            while (attempts < maxAttempts) {
+                board = Array(rows).fill(null).map(() => Array(cols).fill(0));
+                
+                // Place mines randomly, avoiding first click and adjacent cells
+                let minesPlaced = 0;
+                while (minesPlaced < mines) {
+                    const r = Math.floor(Math.random() * rows);
+                    const c = Math.floor(Math.random() * cols);
+                    
+                    // Avoid first click and adjacent cells
+                    if (Math.abs(r - clickRow) <= 1 && Math.abs(c - clickCol) <= 1) continue;
+                    
+                    if (board[r][c] !== -1) {
+                        board[r][c] = -1;
+                        minesPlaced++;
+                    }
+                }
+                
+                // Calculate numbers
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        if (board[r][c] === -1) continue;
+                        
+                        let count = 0;
+                        for (let dr = -1; dr <= 1; dr++) {
+                            for (let dc = -1; dc <= 1; dc++) {
+                                if (dr === 0 && dc === 0) continue;
+                                const nr = r + dr, nc = c + dc;
+                                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc] === -1) {
+                                    count++;
+                                }
+                            }
+                        }
+                        board[r][c] = count;
+                    }
+                }
+                
+                // Check if board is solvable without guessing
+                if (isSolvable(clickRow, clickCol)) {
+                    return;
+                }
+                
+                attempts++;
+            }
+            
+            // If we couldn't generate a perfect board, use the last one
+            console.log('Using best available board after', attempts, 'attempts');
+        }
+
+        function isSolvable(startRow, startCol) {
+            // Simplified solvability check - ensures first click opens a safe area
+            const testRevealed = Array(rows).fill(null).map(() => Array(cols).fill(false));
+            
+            // Simulate revealing from first click
+            revealFrom(startRow, startCol, testRevealed);
+            
+            // Check if we revealed at least some cells
+            let revealedCount = 0;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (testRevealed[r][c]) revealedCount++;
+                }
+            }
+            
+            // A good starting position should reveal multiple cells
+            return revealedCount >= 9;
+        }
+
+        function revealFrom(r, c, testBoard) {
+            if (r < 0 || r >= rows || c < 0 || c >= cols || testBoard[r][c]) return;
+            testBoard[r][c] = true;
+            
+            if (board[r][c] === 0) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        revealFrom(r + dr, c + dc, testBoard);
+                    }
+                }
+            }
+        }
+
+        function renderBoard() {
+            const boardEl = document.getElementById('board');
+            boardEl.innerHTML = '';
+            boardEl.style.gridTemplateColumns = `repeat(${cols}, 35px)`;
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = r;
+                    cell.dataset.col = c;
+                    
+                    cell.addEventListener('click', () => handleClick(r, c));
+                    cell.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        handleRightClick(r, c);
+                    });
+                    
+                    updateCell(cell, r, c);
+                    boardEl.appendChild(cell);
+                }
+            }
+        }
+
+        function updateCell(cell, r, c) {
+            // Clear all classes first
+            cell.className = 'cell';
+            
+            if (flagged[r][c]) {
+                cell.classList.add('flagged');
+                cell.textContent = '🚩';
+            } else if (revealed[r][c]) {
+                cell.classList.add('revealed');
+                if (board[r][c] === -1) {
+                    cell.classList.add('mine');
+                    cell.textContent = '💣';
+                } else if (board[r][c] > 0) {
+                    cell.textContent = board[r][c];
+                    cell.classList.add(`num-${board[r][c]}`);
+                }
+            } else {
+                cell.textContent = '';
+            }
+        }
+
+        function handleClick(r, c) {
+            if (gameOver || revealed[r][c] || flagged[r][c]) return;
+            
+            if (firstClick) {
+                generateBoard(r, c);
+                firstClick = false;
+            }
+            
+            startTimer();
+            
+            if (board[r][c] === -1) {
+                gameOver = true;
+                revealAll();
+                document.getElementById('message').innerHTML = '<span class="lose">💥 Game Over!</span>';
+                clearInterval(timerInterval);
+                return;
+            }
+            
+            reveal(r, c);
+            checkWin();
+        }
+
+        function handleRightClick(r, c) {
+            if (gameOver || revealed[r][c]) return;
+            
+            flagged[r][c] = !flagged[r][c];
+            const flagCount = flagged.flat().filter(f => f).length;
+            document.getElementById('flagCount').textContent = flagCount;
+            
+            const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+            updateCell(cell, r, c);
+        }
+
+        function reveal(r, c) {
+            if (r < 0 || r >= rows || c < 0 || c >= cols || revealed[r][c] || flagged[r][c]) return;
+            
+            revealed[r][c] = true;
+            const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+            updateCell(cell, r, c);
+            
+            if (board[r][c] === 0) {
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        if (dr === 0 && dc === 0) continue;
+                        reveal(r + dr, c + dc);
+                    }
+                }
+            }
+        }
+
+        function revealAll() {
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    revealed[r][c] = true;
+                    const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                    updateCell(cell, r, c);
+                }
+            }
+        }
+
+        function checkWin() {
+            let allRevealed = true;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (board[r][c] !== -1 && !revealed[r][c]) {
+                        allRevealed = false;
+                        break;
+                    }
+                }
+                if (!allRevealed) break;
+            }
+            
+            if (allRevealed) {
+                gameOver = true;
+                clearInterval(timerInterval);
+                document.getElementById('message').innerHTML = '<span class="win">🎉 You Win!</span>';
+                showWinModal();
+            }
+        }
+
+        loadHighscores();
+        newGame();
+    </script>
 </body>
 </html>

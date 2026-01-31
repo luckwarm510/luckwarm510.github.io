@@ -60,10 +60,26 @@ button:active {
 }
 
 /* ===== GAME UI ===== */
+#difficulty {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    justify-content: center;
+}
+.diff-btn {
+    flex: 1;
+    max-width: 80px;
+}
+.diff-btn.active {
+    background: #404040;
+    color: #fff;
+    border-color: #404040 #fff #fff #404040 !important;
+}
 #top {
     display: flex;
     justify-content: space-between;
     margin-bottom: 6px;
+    gap: 6px;
 }
 .counter {
     background: #000;
@@ -71,6 +87,7 @@ button:active {
     padding: 4px 8px;
     min-width: 80px;
     text-align: center;
+    font-size: 12px;
 }
 #board {
     display: grid;
@@ -139,17 +156,25 @@ input {
 <div id="app" class="right">
 
     <!-- GAME -->
-    <div class="window">
+    <div class="window" style="display: flex; flex-direction: column;">
         <div class="titlebar">
             <span>No-Guess Minesweeper</span>
             <button id="toggleScores">Toggle Scores</button>
         </div>
+        <div style="padding: 6px 0;">
+            <label style="display: block; font-size: 12px; margin-bottom: 4px;">Difficulty:</label>
+            <div id="difficulty">
+                <button class="diff-btn active" data-difficulty="easy">Easy</button>
+                <button class="diff-btn" data-difficulty="medium">Medium</button>
+                <button class="diff-btn" data-difficulty="hard">Hard</button>
+            </div>
+        </div>
         <div id="top">
             <div class="counter">Mines: <span id="mines"></span></div>
-            <button id="newGame">New</button>
+            <button id="newGame" style="flex: 1;">New Game</button>
             <div class="counter">Time: <span id="time">0</span></div>
         </div>
-        <div id="board"></div>
+        <div id="board" style="margin-top: 6px;"></div>
     </div>
 
     <!-- SCORES -->
@@ -174,7 +199,13 @@ input {
 </div>
 
 <script>
-const rows = 9, cols = 9, mineCount = 10;
+const difficulties = {
+    easy: {rows: 8, cols: 8, mines: 10},
+    medium: {rows: 9, cols: 9, mines: 10},
+    hard: {rows: 10, cols: 10, mines: 40}
+};
+let currentDifficulty = 'medium';
+let rows = 9, cols = 9, mineCount = 10;
 let board = [], revealed = 0, flags = 0, time = 0, timer;
 const boardEl = document.getElementById("board");
 const modal = document.getElementById("modal");
@@ -184,6 +215,20 @@ const toggleScores = document.getElementById("toggleScores");
 const newGame = document.getElementById("newGame");
 const scoreTable = document.getElementById("scoreTable");
 const app = document.getElementById("app");
+const diffBtns = document.querySelectorAll(".diff-btn");
+
+function setDifficulty(difficulty) {
+    currentDifficulty = difficulty;
+    const settings = difficulties[difficulty];
+    rows = settings.rows;
+    cols = settings.cols;
+    mineCount = settings.mines;
+    boardEl.style.gridTemplateColumns = `repeat(${cols}, 26px)`;
+    diffBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.difficulty === difficulty));
+    start();
+}
+
+diffBtns.forEach(btn => btn.onclick = () => setDifficulty(btn.dataset.difficulty));
 
 boardEl.style.gridTemplateColumns = `repeat(${cols}, 26px)`;
 

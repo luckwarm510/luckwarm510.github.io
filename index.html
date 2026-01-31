@@ -123,6 +123,7 @@ th, td {
     display: none;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
 }
 #modal .window {
     width: 260px;
@@ -135,15 +136,14 @@ input {
 </head>
 <body>
 
-<div class="titlebar">
-    <span>No-Guess Minesweeper</span>
-    <button id="toggleScores">Toggle Scores</button>
-</div>
-
 <div id="app" class="right">
 
     <!-- GAME -->
     <div class="window">
+        <div class="titlebar">
+            <span>No-Guess Minesweeper</span>
+            <button id="toggleScores">Toggle Scores</button>
+        </div>
         <div id="top">
             <div class="counter">Mines: <span id="mines"></span></div>
             <button id="newGame">New</button>
@@ -177,6 +177,13 @@ input {
 const rows = 9, cols = 9, mineCount = 10;
 let board = [], revealed = 0, flags = 0, time = 0, timer;
 const boardEl = document.getElementById("board");
+const modal = document.getElementById("modal");
+const modalText = document.getElementById("modalText");
+const modalButtons = document.getElementById("modalButtons");
+const toggleScores = document.getElementById("toggleScores");
+const newGame = document.getElementById("newGame");
+const scoreTable = document.getElementById("scoreTable");
+const app = document.getElementById("app");
 
 boardEl.style.gridTemplateColumns = `repeat(${cols}, 26px)`;
 
